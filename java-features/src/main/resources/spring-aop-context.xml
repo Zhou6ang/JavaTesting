@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:aop="http://www.springframework.org/schema/aop"
+        xmlns:tx="http://www.springframework.org/schema/tx"
+        xmlns:context="http://www.springframework.org/schema/context" xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    <alias name="mainBean" alias="tttt" />
+    <!-- <import resource="tx-manager.xml"/> -->
+    <context:property-placeholder location="classpath:jdbc.properties"/> 
+    <!-- <aop:aspectj-autoproxy /> -->
+    <bean id="myAspect" class="com.zg.spring.aop.pkg.MyAspect"></bean>
+    <bean id="mainBean" class="com.zg.spring.aop.pkg.MainBean">
+        <property name="b2" ref="depBean"></property>
+        <property name="contextValue" value="${url},${user},${password} from 'context:property-placeholder'"></property>
+    </bean>
+    <bean id="depBean" class="com.zg.spring.aop.DependencyBean"></bean>
+    <aop:config expose-proxy="true">
+        <aop:pointcut id="someMethod" expression="execution(public * com.zg.spring.aop.*.log*(..))" />
+        <aop:pointcut id="aMethod_0" expression="execution(public boolean com.zg.spring.aop.DependencyBean.logic_around(com.zg.spring.aop.pkg.Parameter,com.zg.spring.aop.pkg.Parameter))"/>
+        <aop:pointcut id="aMethod_1" expression="bean(depBean) and execution(* logic_around(..))"/>
+        <aop:pointcut id="aMethod_2" expression="bean(depBean) and execution(* logic_around(..)) and args(com.zg.spring.aop.pkg.Parameter,com.zg.spring.aop.pkg.Parameter)"/>
+        <aop:pointcut id="aMethod_3" expression="bean(depBean) and execution(* logic_around(..)) and args(anyName_0,anyName_1,..)"/>
+        <aop:pointcut id="withinClass_0" expression="within(com.zg.spring.aop.DependencyBean)" />
+        <aop:pointcut id="withinClass_1" expression="within(com.zg.spring.aop.DependencyBean) and args(anyName_0,anyName_1,..)" />
+        <aop:pointcut id="withinPackage" expression="within(com.zg.spring.aop.*)" />
+        <aop:pointcut id="withinSubPackage" expression="within(com.zg.spring.aop..*)" />
+        <aop:pointcut id="matchesBeansDefinedInXml" expression="bean(mainBean) || bean(depBean)" />
+        <aop:pointcut id="args_0" expression="args(anyName_0,anyName_1,..)" />
+        <aop:pointcut id="args_1" expression="args(com.zg.spring.aop.pkg.Parameter,com.zg.spring.aop.pkg.Parameter)" />
+        <aop:pointcut id="this_0" expression="execution(public * com.zg.spring.aop..*.logic_*(..)) and this(anyName_0)" />
+        <aop:pointcut id="target_0" expression="execution(public * com.zg.spring.aop..*.logic_*(..)) and target(anyName_0)" />
+        
+        <aop:aspect ref="myAspect">
+            <aop:declare-parents types-matching="com.zg.spring.aop.DependencyBean+" implement-interface="com.zg.spring.aop.pkg.Introduction" default-impl="com.zg.spring.aop.pkg.SpringIntroductionFeature" />
+            
+            <!-- <aop:before method="beforeAdvice" pointcut-ref="args_0" arg-names="anyName_0,anyName_1" />
+            <aop:before method="beforeAdviceWithArgs_this" pointcut-ref="this_0" arg-names="anyName_0"/>
+            <aop:before method="beforeAdviceWithArgs_target" pointcut-ref="target_0" arg-names="anyName_0"/>
+            <aop:after method="afterAdvice" pointcut-ref="aMethod_1" />
+            <aop:after-returning returning="retValue" method="afterReturningAdvice" pointcut-ref="aMethod_1" />
+            <aop:after-throwing throwing="throwingValue" method="afterThrowingAdvice" pointcut-ref="aMethod_1" />
+            <aop:around method="aroundAdvice" pointcut-ref="aMethod_1" /> -->
+            
+             <aop:before method="beforeAdviceWithArgs_this" pointcut="execution(public * com.zg.spring.aop.DependencyBean.*(..)) and args(p1,p2,..) and this(beanObj)" arg-names="p1,p2,beanObj"/>
+             <aop:before method="beforeAdviceWithArgs_target" pointcut="execution(public * com.zg.spring.aop..*(..)) and args(p1,p2,..) and target(tgtBeanObj)" arg-names="p1,p2,tgtBeanObj"/>
+             <aop:before method="beforeAdviceWithArgs" pointcut="execution(public * com.zg.spring.aop..*(..)) and args(p1,p2,..)" arg-names="p1,p2"/>
+             <aop:after method="afterAdviceWithArgs" pointcut="execution(public * com.zg.spring.aop..*(..)) and args(p1,p2,..)" arg-names="p1,p2"/>
+             <aop:after-returning returning="outputOfJoinpoint" method="afterReturningAdviceWithArgs" pointcut="execution(public * com.zg.spring.aop..*(..)) and args(p1,p2,..)" arg-names="p1,p2,outputOfJoinpoint"/>
+             <aop:after-throwing throwing="throwingOfJoinpoint" method="afterThrowingAdviceWithArgs" pointcut="execution(public * com.zg.spring.aop..*(..)) and args(p1,p2,..)" arg-names="p1,p2,throwingOfJoinpoint"/>
+             <aop:around method="aroundAdviceWithArgs" pointcut="execution(public * com.zg.spring.aop..*(..)) and args(p1,p2,..)" arg-names="p1,p2"/>
+             
+        </aop:aspect>
+        
+    </aop:config>
+    
+    <!-- ======================================Transaction Management====================================== -->
+    <aop:config>
+        <aop:advisor id="advisor_0" advice-ref="advice_0" pointcut="execution(public * com.zg.spring.tx..*(..))" />
+    </aop:config>
+    <tx:advice id="advice_0" transaction-manager="txManager">
+        <tx:attributes>
+            <tx:method name="createBook" propagation="REQUIRED" isolation="SERIALIZABLE" />
+            <tx:method name="insert*" propagation="REQUIRED" isolation="SERIALIZABLE" />
+            <tx:method name="update*" propagation="REQUIRED" isolation="SERIALIZABLE" />
+            <tx:method name="drop*" propagation="REQUIRED" isolation="SERIALIZABLE" />
+        </tx:attributes>
+    </tx:advice>
+
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource" destroy-method="close">
+        <property name="url" value="${url}" />
+        <property name="username" value="${user}" />
+        <property name="password" value="${password}" />
+        <property name="driverClassName" value="${driverClassName}" />
+        <property name="minIdle" value="${minIdle}" />
+        <property name="maxTotal" value="${maxTotal}" />
+        <property name="maxIdle" value="${maxIdle}" />
+    </bean>
+    <bean id="bookManagerService" class="com.zg.spring.tx.BookManagerServiceImpl" init-method="initDB" lazy-init="true">
+       <property name="userDAO" ref="userDAO" />
+       <property name="bookDAO" ref="bookDAO" />
+       <property name="dataSource" ref="dataSource" />
+    </bean>
+    <bean id="userDAO" class="com.zg.spring.tx.dao.UserDAOImpl">
+        <!-- solution 2 -->
+       <constructor-arg index="0" ref="dataSource" />
+       <!-- solution 1 -->
+       <!-- <property name="jdbcTempl" ref="jdbcTempl" /> -->
+    </bean>
+    <bean id="bookDAO" class="com.zg.spring.tx.dao.BookDAOImpl">
+        <!-- solution 2 -->
+       <constructor-arg index="0" ref="dataSource" />
+       <!-- solution 1 -->
+       <!-- <property name="jdbcTempl" ref="jdbcTempl" /> -->
+    </bean>
+    <!-- solution 1 -->
+    <!-- <bean id="jdbcTempl" class="org.springframework.jdbc.core.JdbcTemplate">
+        <constructor-arg index="0" name="dataSource" ref="dataSource" />
+        <constructor-arg index="1" name="lazyInit" value="true" />
+    </bean> -->
+</beans>
+
+

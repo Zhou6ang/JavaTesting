@@ -1,0 +1,23 @@
+
+syntax = "proto3";
+package com.protobuf;
+
+message Person {
+	int64 id = 1;
+	string name = 2;
+	int32 age = 3;
+	string mail = 4;
+	
+	enum PhoneType {
+		Mobile = 0;
+		Home = 1;
+		Work = 2;
+	}
+	
+	message PhoneNumber {
+		string num = 1;
+		PhoneType type = 2;
+	}
+	
+	repeated PhoneNumber phone = 5;
+}

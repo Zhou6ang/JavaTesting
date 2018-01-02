@@ -1,0 +1,398 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:aop="http://www.springframework.org/schema/aop"
+        xmlns:tx="http://www.springframework.org/schema/tx"
+        xmlns:context="http://www.springframework.org/schema/context" xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+<!-- 
+I. IOC
+    Example:
+        <import resource="/${customer}/other.xml"/> invoke java -jar -Dcustomer='test' xxx.jar
+        <alias name="bean_id" alias="other_alias_name" />
+        <bean id="test" class="com.xx.A" parent="refBeanId" scope="singleton|prototype" abstract="false" lazy-init="false" autowire="no" depends-on="refBeanId" primary="false" init-method="methodName(no args)" destroy-method="methodName(no args)" factory-method="" factory-bean="">
+            <meta key="key" value="value"></meta>
+            <constructor-arg index="0, index of arg" type="type of arg" name="name of arg"  value="anyString,equal <value><value>" ref="refbeanId,equal <ref bean=...>">
+                //only one of below element
+                <bean|ref|idref|value|null|array|list|map|set|props></bean|ref|idref|value|null|array|list|map|set|props>
+            </constructor-arg>
+            
+            <property name="xxx, postfix of setXxx" ref="refBeanId" value="">
+                <meta|bean|ref|idref|value|null|array|list|map|set|props></meta|bean|ref|idref|value|null|array|list|map|set|props>
+            </property>
+            
+            <qualifier type="org.springframework.beans.factory.annotation.Qualifier" value="b1">
+                <attribute key="key-0" value="value-0"/>
+            </qualifier>
+            OR
+            <qualifier type="org.springframework.beans.factory.annotation.Qualifier">
+                <attribute key="value" value="b1"/>
+            </qualifier>
+            OR
+            <qualifier type="com.zg.spring.MyQualifier">
+                <attribute key="a" value="b1"></attribute>
+                <attribute key="b" value="b2"></attribute>
+            </qualifier>
+            
+            <lookup-method name="method-name of look-up in current bean" bean="refBeanId and return type of method-name"/>
+            
+            <replaced-method name="method name will be replaced" replacer="Bean name of an implementation of org.springframework.beans.factory.support.MethodReplacer">
+                <arg-type match="String"/>
+                <arg-type match="Str"/>
+            </replaced-method>
+        </bean>
+        <beans profile="p1" default-lazy-init="" default-merge="" default-autowire="" default-autowire-candidates="" default-init-method="" default-destroy-method="">
+           <import>...</import>
+           <alias>...</alias>
+           <bean>...</bean>
+        </beans>
+
+    1. bean
+        e.g. <bean id="test" class="com.xx.A" parent="refBeanId" scope="singleton|prototype" abstract="false" lazy-init="false" autowire="no" depends-on="refBeanId" primary="false" init-method="methodName(no args)" destroy-method="methodName(no args)" factory-method="" factory-bean="">
+        a. id: Bean id.
+        b. class: implementation class path.
+        c. parent: The name of the parent bean definition. Will use defined property [aop:after] of parent Bean's if parent attribute has been specified, but it can also be overridden by property [aop:after] of child Bean if child Bean defined same property [aop:after] with parent Bean.
+        d. scope: only support singleton and prototype.
+        e. abstract: defualt is false;if true,current Bean will not be instantiated.
+        f. lazy-init: default is false;if true,current Bean will load when it has been using.
+        g. autowire: default is no,value is no|byName|byType|constructor, it means we no need to define property aop:after for current Bean and spring container will help to set property base on byName|byType|constructor inside of ApplicationContext automatically.
+        h. depends-on: Bean id which will be initiated before current initialization.
+        i. init-method: The name of the custom initialization method to invoke after setting bean properties. The method must have no arguments, but may throw any exception.
+        j. destroy-method: The name of the custom destroy method to invoke on bean factory shutdown. The method must have no arguments, but may throw any exception.
+    
+    1.1 meta
+        e.g. <meta key="key" value="value"></meta>
+        a. key: string value.
+        b. value: string value.
+        note: how to get value??
+    
+    1.2 constructor-arg
+        e.g. 
+            <constructor-arg index="0, index of arg" type="type of arg" name="name of arg"  value="anyString,equal <value><value>" ref="refbeanId,equal <ref bean=...>">
+                //only one of below element
+                <bean|ref|idref|value|null|array|list|map|set|props></bean|ref|idref|value|null|array|list|map|set|props>
+            </constructor-arg>
+        a. index: index of arg, start with index 0.
+        b. type: type of arg, full class path, e.g. java.lang.String.
+        c. name: proper name which matched with arg.
+        d. value: any string value.
+        e. ref: refered to other Bean id which defined in current context xml.
+    
+    1.3 property
+        Explanation: 1.method modifier of class must be public; 2.method name in class must be setXxx; e.g. public void setAbc(..).
+        e.g. 
+            <property name="xxx, postfix of setXxx" ref="refBeanId" value="">
+                <meta|bean|ref|idref|value|null|array|list|map|set|props></meta|bean|ref|idref|value|null|array|list|map|set|props>
+            </property>
+        a. name: property name inside of current Bean and it's postfix of setXxx.
+        b. ref: refered Other Bean id.
+        c. value: string value.
+        
+    1.4 qualifier
+        Explanation: help IOC container to distinguish which defined Bean-id will be effected for which Parameter|Method|Field.
+                    Bean definitions can provide qualifiers to match against annotations on a field or parameter for fine-grained autowire candidate resolution.
+        Note:1. currently INVALID, only can use @Qualifier("b1") in entry class of bean;
+             2. also need to define <context:annotation-config/>.
+             3. at same time defined Bean must have autowire="byType" attribute.
+        e.g. 
+            <qualifier type="org.springframework.beans.factory.annotation.Qualifier" value="b1">
+                <attribute key="key-0" value="value-0"/>
+            </qualifier>
+            OR
+            <qualifier type="org.springframework.beans.factory.annotation.Qualifier">
+                <attribute key="value" value="b1"/>
+            </qualifier>
+            OR
+            <qualifier type="com.zg.spring.MyQualifier">
+                <attribute key="a" value="b1"></attribute>
+                <attribute key="b" value="b2"></attribute>
+            </qualifier>
+        a. type: annotation type which can self define, and use Attribute sub-element to set annotation's value. defualt is org.springframework.beans.factory.annotation.Qualifier.
+        b. value: annotation type value, e.g. @Qualifier("b1") equal to <qualifier type="org.springframework.beans.factory.annotation.Qualifier" value="b1">
+        
+    1.5 lookup-method
+        Explanation: A lookup method causes the IoC container to override the given method and return the bean with the name given in the bean attribute. 
+                    This is a form of Method Injection. It is particularly useful as an alternative to implementing the BeanFactoryAware interface, 
+                    in order to be able to make getBean() calls for non-singleton instances at runtime. In this case, Method Injection is a less invasive alternative.
+        Note: 1.Current Bean should be abstract Bean. 
+              2. But couldn't define current Bean's as abstract=true property.
+        e.g. <lookup-method name="method-name of look-up in current bean" bean="refBeanId and return type of method-name"/>
+        a. name: method-name of look-up in current bean.
+        b. bean: refBeanId and return type of method-name
+        
+    1.6 replaced-method
+        Explanation: Similar to the lookup method mechanism, the replaced-method element is used to control IoC container method overriding: Method Injection. This mechanism allows the overriding of a method with arbitrary code.
+        Note: 1.used as replace method entry to return new/other value via implement interface MethodReplacer.
+        e.g. 
+            <replaced-method name="method name will be replaced" replacer="Bean name of an implementation of org.springframework.beans.factory.support.MethodReplacer">
+                <arg-type match="String"/>
+                <arg-type match="Str"/>
+            </replaced-method>
+        a. name: method name will be replaced in current Bean.
+        b. replacer: refered Bean id which implemented org.springframework.beans.factory.support.MethodReplacer
+        c. match: matching arg type.
+   
+    2. import
+        e.g. <import resource="/x/${customer}/services.xml"/> invoke java -jar -Dcustomer='test' xxx.jar
+        Explanation: import other xml to current one.
+        
+    3. alias
+        e.g. <alias name="bean_id" alias="other_alias_name" />
+        Explanation: make a alias name for a Bean.
+    
+    4. beans
+        e.g. 
+            <beans profile="p1" default-lazy-init="" default-merge="" default-autowire="" default-autowire-candidates="" default-init-method="" default-destroy-method="">
+               <import>...</import>
+               <alias>...</alias>
+               <bean>...</bean>
+            </beans>
+        Explanation: Container for <bean> and other elements, typically the root element in the document. Allows the definition of default values for all nested bean definitions. May itself be nested for the purpose of defining a subset of beans with certain default values or to be registered only when certain profile(s) are active. Any such nested <beans> element must be declared as the last element in the document.
+        The set of profiles for which this <beans> element should be parsed. Multiple profiles can be separated by spaces, commas, or semi-colons. 
+                    If one or more of the specified profiles are active at time of parsing, the <beans> element will be parsed, and all of its <bean> elements registered,
+                    &lt;import&gt; elements followed, etc. If none of the specified profiles are active at time of parsing, then the entire element and its contents will be ignored. 
+                    If a profile is prefixed with the NOT operator '!', e.g. <beans profile="p1,!p2"> indicates that the <beans> element should be parsed if profile "p1" is active or if profile "p2" is not active. 
+                    Profiles are activated in one of two ways: Programmatic: ConfigurableEnvironment#setActiveProfiles(String...) ConfigurableEnvironment#setDefaultProfiles(String...) 
+                    Properties (typically through -D system properties, environment variables, or servlet context init params): spring.profiles.active=p1,p2 spring.profiles.default=p1,p2
+        a. profile: profile name which can be used via "-D system properties" to active or deactive, e.g. java -jar -Dspring.profiles.active=p1,p2 xxx.jar.
+        b. default-lazy-init: 
+        c. default-merge:
+
+############################older explanation version start############################
+    <bean id="test" class="com.xx.A" parent="refBeanId" scope="singleton|prototype" abstract="false" lazy-init="false" autowire="no" depends-on="refBeanId" primary="false" init-method="methodName(no args)" destroy-method="methodName(no args)" factory-method="" factory-bean="">
+        //how to get value??
+        <meta key="key" value="value"></meta>
+        <constructor-arg index="0, index of arg" type="type of arg" name="name of arg"  value="anyString,equal <value><value>" ref="refbeanId,equal <ref bean=...>">
+            //only one of below element
+            <bean|ref|idref|value|null|array|list|map|set|props></bean|ref|idref|value|null|array|list|map|set|props>
+        </constructor-arg>
+        
+        //property: 1.method modifier of class must be public; 2.method name in class must be setXxx; e.g. public void setAbc(..)
+        <property name="xxx, postfix of setXxx" ref="refBeanId" value="">
+            <meta|bean|ref|idref|value|null|array|list|map|set|props></meta|bean|ref|idref|value|null|array|list|map|set|props>
+        </property>
+        
+        //qualifier: help IOC container to distinguish which defined Bean-id will be effected for which Parameter|Method|Field.
+        //1. currently INVALID, only can use @Qualifier("b1") in entry class of bean;
+        //2. also need to define <context:annotation-config/>.
+        //3. at same time defined Bean must have autowire="byType" attribute.
+        <qualifier type="org.springframework.beans.factory.annotation.Qualifier" value="b1">
+            <attribute key="key-0" value="value-0"/>
+        </qualifier>
+        OR
+        <qualifier type="org.springframework.beans.factory.annotation.Qualifier">
+            <attribute key="value" value="b1"/>
+        </qualifier>
+        OR
+        <qualifier type="com.zg.spring.MyQualifier">
+            <attribute key="a" value="b1"></attribute>
+            <attribute key="b" value="b2"></attribute>
+        </qualifier>
+        
+        //lookup-method: 1.Current Bean should be abstract Bean. 2. But couldn't define current Bean's as abstract=true property.
+        <lookup-method name="method-name of look-up in current bean" bean="refBeanId and return type of method-name"/>
+        
+        //replaced-method: 1.used as replace method entry to return new/other value via implement interface MethodReplacer.
+        <replaced-method name="method name will be replaced" replacer="Bean name of an implementation of org.springframework.beans.factory.support.MethodReplacer">
+            <arg-type match="String"/>
+            <arg-type match="Str"/>
+        </replaced-method>
+    </bean>
+############################older explanation version end############################
+    
+II. AOP 
+    Example:
+        <aop:config proxy-target-class="false" expose-proxy="false">
+            <aop:pointcut id="" expression="execution(* com.xyz.myapp.service.*.*(..))"/>
+            <aop:advisor id="" advice-ref="refAdviceId" pointcut="execution(* **)" pointcut-ref="refPointcutId" order=""/>
+            <aop:aspect id="" ref="refBeanId" order="">
+                <aop:pointcut id="pointcut_id" expression="execution(* com.xyz.myapp.service.*.*(..))"/>
+                <aop:declare-parents types-matching="com.zg.spring.Bean+" implement-interface="" default-impl="" delegate-ref="" />
+                <aop:before pointcut="execution(* **)" pointcut-ref="refPointcutId" method="beforeAdviceMethod in refBeanId" />
+                <aop:after pointcut="execution(* **) and args(arg_0,arg_1)" pointcut-ref="refPointcutId" method="afterAdviceMethod in refBeanId" arg-names="arg_0,arg_1" />
+                <aop:around pointcut="execution(* **) and args(arg_0,arg_1)" pointcut-ref="refPointcutId" method="aroundAdviceMethod in refBeanId" arg-names="arg_0,arg_1" />
+                <aop:after-returning returning="paraName_0:in afterReturningMethod" pointcut="execution|within|bean|this|args(arg_0,arg_1)" pointcut-ref="refPointcutId" method="afterReturningMethod in refBeanId" arg-names="arg_0,arg_1,paraName_0" />
+                <aop:after-throwing throwing="paraName_0:in afterThrowingMethod" pointcut="eexecution|within|bean|this|args(arg_0,arg_1)" pointcut-ref="refPointcutId" method="afterThrowingMethod in refBeanId" arg-names="arg_0,arg_1,paraName_0" />
+            </aop:aspect>
+        </aop:config>
+        <aop:aspectj-autoproxy proxy-target-class="false" expose-proxy="false"/>
+        <aop:scoped-proxy proxy-target-class="true" />
+    
+    1. aop:config
+        e.g. <aop:config proxy-target-class="false" expose-proxy="false"></aop:config>
+        a. proxy-target-class:Are class-based (CGLIB) proxies to be created? By default, standard Java interface-based proxies are created.
+        b. expose-proxy:Indicate that the proxy should be exposed by the AOP framework as a ThreadLocal for retrieval via the AopContext class. Off by default
+                        e.g. class MainBean {
+                                public void methodA(){
+                                    //if invoke methodB directly, then methodB couldn't be intercepted(advised) by AOP framework.
+                                    //this.methodB();
+                                    //1. set expose-proxy="true" 2. then methodB will be intercepted(advised) by AOP framework as below.
+                                    ((MainBean)AopContext.currentProxy()).methodB(); 
+                                }
+                                public void methodB(){//implementation}
+                            } 
+        
+        1.1 aop:pointcut
+            e.g. <aop:pointcut id="" expression="execution(* com.xyz.myapp.service.*.*(..))"/>
+            a. id: mandatory, unique id
+            b. expression: mandatory, The pointcut expression. It contains [execution() and within() or this() && target() || args()].
+                i. execution: execution(<modifier> returnType classpath.methodName(parameterType) <exceptionType>); 
+                      e.g. public void com.zg.package.someClass.someMethod(com.zg.pkg.someObjClass,com.zg.pkg.someObjClass);
+                        (1). <modifier> is optional, in Spring AOP it only can be public, in AspectJ it can be private|protected.
+                        (2). returnType is method return type full classpath, e.g. java.lang.String
+                        (3). parameterType is input parameter of method and full classpath, e.g. java.lang.String
+               ii. within: within(full_class_path), e.g. within(com.zg.pkg.someClassType)
+              iii. this: (be agented aka impl AOP interface)limits matching to join points (the execution of methods when using Spring AOP) where the bean reference (Spring AOP proxy) is an instance of the given type.
+                     e.g. this(p1)&arg-names="p1" eq JoinPoint.getThis(), and advice method is beforeAdviceWithArgs_this(Object obj). The p1 is object instance of matched Object in expression of Pointcut, 
+                          it has also been Spring AOP agented(it means forced impl SpringProxy,SpringProxy and Advised interface) so the instance p1 has several interfaces as (org.springframework.aop.SpringProxy,
+                          org.springframework.aop.framework.Advised,org.springframework.cglib.proxy.Factory) by default.
+               iv. target: (not be agented aka never impl AOP interface)limits matching to join points (the execution of methods when using Spring AOP) where the target object (application object being proxied) is an instance of the given type.
+                     e.g. target(p1)&arg-names="p1" eq JoinPoint.getTarget(), and advice method is beforeAdviceWithArgs_target(Object obj). The p1 is object instance of matched Object in expression of Pointcut, 
+                          The instance p1 is application instance it means p1 will not be forced implemented Spring AOP interface.
+                v. args: 1.args(p1,p2,..), p1 and p2 are parameter name, it matches paremeter name of join-point method. That must be same with attribute [arg-names] of advice[before|after|around|afterreturning|afterthrowing].
+                          e.g. <aop:before|after|around method="" pointcut="args(anyName_0,anyName_1)" arg-names="anyName_0,anyName_1" />
+                         2.args(Object1,Object1,..), Object1 and Object2 are parameter type, it matches parameter type of join-point method.
+                          e.g. <aop:before|after|around method="" pointcut="args(java.lang.String,java.lang.Integer)" />
+            
+        1.2 aop:advisor
+            e.g. <aop:advisor id="" advice-ref="refAdviceId" pointcut="execution(* **)" pointcut-ref="refPointcutId" order=""/>           
+            a. advice-ref: mandatory, reference id of advice.
+            b. pointcut: a pointcut expression.
+            c. pointcut-ref: a reference id of pointcut.
+            d. order: Controls the ordering of the execution of this advice when multiple advice executes at a specific joinpoint.
+        
+        1.3 aop:aspect
+            e.g. <aop:aspect id="" ref="refBeanId" order=""></aop:aspect>
+            a. id:The unique identifier for an aspect.
+            b. ref:a Bean id.
+            c. order: Controls the ordering of the execution of this aspect when multiple advice executes at a specific joinpoint.
+                    
+            1.3.1 aop:declare-parents
+                    e.g. <aop:declare-parents types-matching="com.zg.pkg.*+" implement-interface="classpath of SomeInterface" default-impl="classpath of Object" delegate-ref="refBeanId" />
+                    a. types-matching:mandatory, any bean of a matched will be forcedly implemented the SomeInterface interface by Spring AOP.
+                    b. implement-interface:mandatory, interface name of introduction.
+                    c. default-impl: default impl of SomeInterface for this introduction.
+                    d. delegate-ref: reference Bean id which implements SomeInterface as default implementation.
+                    note: The aop:declare-parents always used combined with expression this(beanObj), 
+                        e.g.<aop:declare-parents types-matching="com.zg.spring.DependencyBean+" implement-interface="com.zg.spring.aop.Introduction" default-impl="com.zg.spring.aop.SpringIntroductionFeature" />
+                            <aop:before method="beforeAdviceWithArgs_this" pointcut="args(p1,p2,..) and this(beanObj)" arg-names="p1,p2,beanObj"/>
+                        
+            1.3.2 aop:advice[before|after|after-returning|after-throwing|around]
+                    a. pointcut: a pointcut expression.
+                    b. pointcut-ref: a reference id of pointcut.
+                    c. method: mandatory, method name in current aspect(Bean) which implements logic of advice.
+                    d. arg-names: must be same with args expression in Pointcut,its order will impact method's parameter order, The comma-delimited list of advice method argument (parameter) names that will be matched from pointcut parameters.
+                        e.g. below example the method's parameter order is beforeAdvice(Obj arg_0,Obj arg_1).
+                        <aop:before [pointcut="execution(* **) and args(arg_0,arg_1)"]|[pointcut-ref="refPointcutId"] method="beforeAdvice" arg-names="arg_0,arg_1" />
+                        <aop:after [pointcut="execution(* **) and args(arg_0,arg_1)"]|[pointcut-ref="refPointcutId"] method="afterAdvice" arg-names="arg_0,arg_1" />
+                        <aop:around [pointcut="execution(* **) and args(arg_0,arg_1)"]|[pointcut-ref="refPointcutId"] method="aroundAdvice" arg-names="arg_0,arg_1" />
+                    e. returning: the join-point must have return value if want to be catched by AOP, otherwise it can't be catched.
+                    f. join-point: a specific method name of Spring Bean(defined in xml or annotation).
+                        e.g.
+                        <aop:after-returning returning="paraName_0:in afterReturningMethod" [pointcut="execution|within|bean|this|args(arg_0,arg_1)"]|[pointcut-ref="refPointcutId"] method="afterReturningMethod in refBeanId" arg-names="arg_0,arg_1,paraName_0" />
+                    g. throwing: the join-point must have throwing exception value if want to be catched by AOP, otherwise it can't be catched.
+                        e.g.
+                        <aop:after-throwing throwing="paraName_0:in afterThrowingMethod" [pointcut="eexecution|within|bean|this|args(arg_0,arg_1)"]|[pointcut-ref="refPointcutId"] method="afterThrowingMethod in refBeanId" arg-names="arg_0,arg_1,paraName_0" />
+
+    2. aop:aspectj-autoproxy
+        Explanation: Enables the use of the @AspectJ style of Spring AOP.
+        e.g. <aop:aspectj-autoproxy proxy-target-class="false" expose-proxy="false"/> OR
+            <aop:aspectj-autoproxy proxy-target-class="false" expose-proxy="false">
+                (1) name: The regular expression defining which beans are to be included in the list of @AspectJ beans; beans with names matched by the pattern will be included.
+                <aop:include name="*xxBean*" />
+            </aop:aspectj-autoproxy>
+        a. proxy-target-class: Are class-based (CGLIB) proxies to be created? By default, standard Java interface-based proxies are created.
+        b. expose-proxy: Indicate that the proxy should be exposed by the AOP framework as a ThreadLocal for retrieval via the AopContext class. Off by default, i.e. no guarantees that AopContext access will work.
+                        e.g. class MainBean {
+                                public void methodA(){
+                                    //if invoke methodB directly, then methodB couldn't be intercepted(advised) by AOP framework.
+                                    //this.methodB();
+                                    //1. set expose-proxy="true" 2. then methodB will be intercepted(advised) by AOP framework as below.
+                                    ((MainBean)AopContext.currentProxy()).methodB(); 
+                                }
+                                public void methodB(){//implementation}
+                            } 
+
+    3. aop:scoped-proxy
+        Explanation: Marks a bean definition as being a scoped proxy. A bean marked as such will be exposed via a proxy, with the 'real' bean instance being retrieved from some other source (such as a HttpSession) as and when required.
+        e.g. <aop:scoped-proxy proxy-target-class="true" />
+        a. proxy-target-class: there are 2 ways to create proxy(class-base and interface-based(impl proxy interface as above descriped in aop:pointcut->this()))Are class-based (CGLIB) proxies to be created? By default, standard Java interface-based proxies are created.
+
+III. Transaction Manager
+    Example:
+        <tx:advice id ="my_advice">
+            <tx:attributes>
+                <tx:method name="*insert*" propagation="REQUIRED" isolation="DEFAULT" timeout="-1" read-only="false" rollback-for="" no-rollback-for=""/>
+            </tx:attributes>
+        </tx:advice>
+        <tx:annotation-driven transaction-manager="" mode="" proxy-target-class="" order="" />
+        <tx:jta-transaction-manager />
+
+    1. tx:advice
+        Explanation: Defines the transactional semantics of the AOP advice that is to be executed. That is, this advice element is where the transactional semantics of any number of methods are defined (where transactional semantics includes the propagation settings, 
+                     the isolation level, the rollback rules, and suchlike).
+        e.g. <tx:advice id ="" transaction-manager="transactionManager|refBeanId"></tx:advice>
+        a. id: unique id.
+        b. transaction-manager: The bean name of the PlatformTransactionManager that is to be used to drive transactions. 
+                                This attribute is not required, and only needs to be specified explicitly if the bean name of the desired PlatformTransactionManager is not 'transactionManager'.
+
+    1.1 tx:attributes
+        e.g. <tx:attributes></tx:attributes>
+        note: element attribute can be 1 or 0
+    
+    1.1.1 tx:method
+            e.g. <tx:method name="name" propagation="REQUIRED" isolation="DEFAULT" timeout="-1" read-only="false" rollback-for="java.lang.RuntimeException" no-rollback-for=""/>
+            a. name: mandatory, The method name(s) with which the transaction attributes are to be associated. The wildcard (*) character can be used to associate the same transaction attribute settings with a number of methods; 
+                     for example, 'get*', 'handle*', '*Order', 'on*Event', etc.
+            b. propagation:The transaction propagation behavior. It can be one of REQUIRED,SUPPORTS,MANDATORY,REQUIRES_NEW,NOT_SUPPORTED,NEVER,NESTED.
+            c. isolation: The transaction isolation level. It can be one of DEFAULT,READ_UNCOMMITTED,READ_COMMITTED,REPEATABLE_READ,SERIALIZABLE. DEFAULT means using DB sever side's isolation strategy.
+            d. timeout: The transaction timeout value (in seconds).
+            e. read-only: Is this transaction read-only? If read-only is true, then DB sever side has opportunity to do db optimazation. 
+            f. rollback-for: The Exception(s) that will trigger rollback; default is all RuntimeException; comma-delimited. For example, 'com.foo.MyBusinessException,ServletException'
+            g. no-rollback-for: The Exception(s) that will *not* trigger rollback; comma-delimited. For example, 'com.foo.MyBusinessException,ServletException'
+            note: method list scope is 1-n.
+    
+    2. tx:annotation-driven
+        Explaination: Indicates that transaction configuration is defined by Java 5 annotations on bean classes, and that proxies are automatically to be created for the relevant annotated beans. 
+                      The default annotations supported are Spring's @Transactional and EJB3's @TransactionAttribute (if available). 
+                      Transaction semantics such as propagation settings, the isolation level, the rollback rules, etc are all defined in the annotation metadata. 
+                      See org.springframework.transaction.annotation.EnableTransactionManagement Javadoc for information on code-based alternatives to this XML element.
+        e.g. <tx:annotation-driven transaction-manager="transactionManager|refBeanId" mode="proxy" proxy-target-class="false" order="10" />
+        a. transaction-manager: The bean name of the PlatformTransactionManager that is to be used to drive transactions. This attribute is not required, 
+                                and only needs to be specified explicitly if the bean name of the desired PlatformTransactionManager is not 'transactionManager'.
+        b. mode: Should annotated beans be proxied using Spring's AOP framework, or should they rather be weaved with an AspectJ transaction aspect?
+        c. proxy-target-class: if true, using class-based(CGLIB) proxies created. if false, use standard java interface-based proxies are created.
+        d. order: Controls the ordering of the execution of the transaction advisor when multiple advice executes at a specific joinpoint.
+
+    3. tx:jta-transaction-manager
+        Explaination: Creates a default JtaTransactionManager bean with name "transactionManager", matching the default bean name expected by the "annotation-driven" tag. 
+                      Automatically detects WebLogic and WebSphere: creating a WebLogicJtaTransactionManager or WebSphereUowTransactionManager, respectively. 
+                      For customization needs, consider defining a JtaTransactionManager bean as a regular Spring bean definition with name "transactionManager", replacing this element.
+        e.g. <tx:jta-transaction-manager />
+        a. Creates a default JtaTransactionManager bean with name "transactionManager", matching the default bean name expected by the "annotation-driven" tag.
+           Automatically detects WebLogic and WebSphere: creating a WebLogicJtaTransactionManager or WebSphereUowTransactionManager, respectively. For customization needs, 
+           consider defining a JtaTransactionManager bean as a regular Spring bean definition with name "transactionManager", replacing this element.
+     -->
+    
+    <!-- IOC example -->
+    <import resource="spring-ioc-context.xml" />
+    <!-- AOP example -->
+    <import resource="spring-aop-context.xml" />
+    <!-- TX example -->
+    <import resource="spring-tx-context.xml" />
+    
+    <!-- Good practise -->
+    <!-- 
+    <import resource="beans-service.xml" />
+    <import resource="beans-dao.xml" />
+    <import resource="beans-security.xml" />
+    <import resource="beans-config.xml" />
+    -->
+
+</beans>
+
+
