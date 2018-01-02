@@ -1,0 +1,105 @@
+<?xml version="1.0"?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>com.zg.demo</groupId>
+    <artifactId>feature</artifactId>
+    <version>DYNAMIC-SNAPSHOT</version>
+  </parent>
+  <groupId>com.zg.spring.boot</groupId>
+  <artifactId>spring-boot-template</artifactId>
+  <version>1.0-SNAPSHOT</version>
+  <packaging>war</packaging>
+  <name>spring-boot-template</name>
+  <url>http://maven.apache.org</url>
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+    </dependency>
+    
+    <dependency>
+      <groupId>com.zg.demo</groupId>
+      <artifactId>JavaFeatures</artifactId>
+      <version>1.0-SNAPSHOT</version>
+    </dependency>
+	
+	<!-- Spring Boot -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+    <!--Note: 1. comment it, if only need to produce executable jar.-->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-tomcat</artifactId>
+        <scope>provided</scope>
+    </dependency>
+    
+    <!--Note: 2. if using log4j2, should exclude Logback(spring-boot-starter-logging)-->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter</artifactId>
+        <exclusions>                
+            <exclusion>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-starter-logging</artifactId>
+            </exclusion>
+        </exclusions>
+    </dependency>
+    
+    <!--Note: 3. if need to use log4j2,add dependency-->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-log4j2</artifactId>
+    </dependency>   
+    
+  </dependencies>
+  
+  <build>
+        <plugins>
+            
+            <!-- build a tomcat web service via spring boot -->
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <!--Note: 4. uncomment, if want to produce both executable war and container(tomcat,jetty,etc.) war.
+                <configuration>
+                    <classifier>classifier-name</classifier>
+                </configuration>-->
+            </plugin>
+			<plugin>
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<!--execution>
+						<id>exec</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<classifier>classifier-name</classifier>
+						</configuration>
+					</execution -->
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<forceCreation>true</forceCreation>
+							<!-- Need this to ensure application.yml is excluded -->
+							<excludes>
+								<exclude>application.properties</exclude>
+							</excludes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+        </plugins>
+        
+    </build>
+</project>
