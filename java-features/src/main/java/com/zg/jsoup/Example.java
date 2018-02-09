@@ -17,44 +17,45 @@ import org.jsoup.select.Elements;
 public class Example {
 
 	public static void main(String[] args) throws IOException {
-//		String url = "http://www.51job.com";
-		String url = "https://www.baidu.com/s?wd=img";
+		String url = "http://cd.qq.com/";
+//		String url = "https://www.baidu.com/s?wd=img";
 //		Document doc = Jsoup.connect(url).get();
 //		doc.getElementsByTag("a").forEach(e -> {
 //			System.out.println(e.outerHtml() + "," + e.absUrl("href")); // e.html() includes e.text()
 //		});
-		findAndDownloadImg(url, Paths.get("D:\\pic"));
+		downloadImgAndFindAllLink(url, Paths.get("D:\\pic"),1);
 //		capturePage(url);
 		// doc.getElementsByTag("script").forEach(e->{
 		// System.out.println(e);
 		// });
 	}
-	public static void accessAllLinks(String url,Path downloadToPath) throws IOException {
-		Document doc = Jsoup.connect(url).get();
+	public static void findAllLinks(Document doc, String url,Path downloadToPath,int deep) throws IOException {
 		doc.getElementsByTag("a").parallelStream().forEach(e -> {
-			System.out.println(e.outerHtml());
 			String subUrl = e.absUrl("href");
 			if(subUrl != null && !subUrl.isEmpty()) {
-				System.out.println(subUrl);
-//				try {
-//					findAndDownloadImg(url, downloadToPath);
-//				} catch (IOException e1) {
-//					e1.printStackTrace();
-//				}
+				try {
+					downloadImgAndFindAllLink(url, downloadToPath,deep);
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
 			}
 		});
 	}
 	
-	public static void findAndDownloadImg(String url, Path downloadToPath) throws IOException {
+	private static void downloadImgAndFindAllLink(String url,Path downloadToPath,int deep) throws IOException {
+		deep--;
+		if(deep < 0) {
+			return;
+		}
 		Random r = new Random();
 		Document doc = Jsoup.connect(url).get();
-		doc.getElementsByTag("img").parallelStream().forEach(e -> {
+		doc.getElementsByTag("img").parallelStream().filter(e->e.attr("src")!=null && !e.attr("src").isEmpty()).forEach(e -> {
 			String srcUrl = e.absUrl("src");
 			if(srcUrl != null && !srcUrl.isEmpty()) {
 				System.out.println(e.outerHtml() + "," + srcUrl);
 				String name = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS"))+"_"+r.nextInt(10000);
 				if(e.hasAttr("alt") && !e.attr("alt").isEmpty()) {
-					name = e.attr("alt")+"_"+name;
+					name = e.attr("alt").replaceAll("[¡° ¡±\r\t\n:]", "")+"_"+name;
 				}
 				try {
 					Response response = Jsoup.connect(srcUrl).ignoreContentType(true).execute();
@@ -66,18 +67,12 @@ public class Example {
 			
 		});
 		
-		doc.getElementsByTag("a").parallelStream().forEach(e -> {
-			String subUrl = e.absUrl("href");
-			if(subUrl != null && !subUrl.isEmpty()) {
-				try {
-					findAndDownloadImg(url, downloadToPath);
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				}
-			}
-		});
+		if(deep > 0 ) {
+			findAllLinks(doc, url, downloadToPath, deep);
+		}
+		
+		
 	}
-
 	public static void capturePage(String url) throws IOException {
 
 		Document doc = Jsoup.connect(url).get();
