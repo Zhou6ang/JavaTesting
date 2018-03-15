@@ -1,5 +1,0 @@
-k1:
-  k2:
-    k3: "here is application-a.yml"
-server: 
-  port: 9999
