@@ -1,0 +1,2 @@
+1. Feign 采用的是基于接口的注解： @EnableDiscoveryClient找服务必备, @EnableFeignClients开启feign, @FeignClient("eureka-service-provider")访问服务xxx-provider, @RequestMapping(value = "/hi",method = RequestMethod.GET)访问服务xxx-provider下的hi service.
+   Feign 整合了ribbon: 所以自带LoadBanlance
