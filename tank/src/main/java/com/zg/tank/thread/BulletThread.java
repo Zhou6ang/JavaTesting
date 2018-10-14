@@ -14,9 +14,18 @@ public class BulletThread implements Runnable{
 	public void run() {
 		try {
 			while(gamePlayingPanel.isAlive){
-				for (Bullet bullet : gamePlayingPanel.getAllBullets()) {
+				
+				for (int i = 0; i < gamePlayingPanel.getAllBullets().size(); i++) {
+					Bullet bullet = gamePlayingPanel.getAllBullets().get(i);
 					bullet.moving();
 				}
+				
+//				Set<Bullet> set = gamePlayingPanel.getBulletsMap().keySet();
+//				for(int i = 0;i<set.size();i++){
+//					Bullet bullet = set.get(i);
+//					bullet.moving();
+//				}
+				
 				Thread.sleep(Config.BULLET_INTERVAL_TIME);
 			}
 		} catch (InterruptedException e) {

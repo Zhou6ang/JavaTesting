@@ -2,8 +2,8 @@ package com.zg.config;
 
 public class Config {
 	
-	public static final int REPAINT_INTERVAL_TIME= 200;
-	public static final int BULLET_INTERVAL_TIME= 80;
+	public static final int REPAINT_INTERVAL_TIME= 300;
+	public static final int BULLET_INTERVAL_TIME= 200;
 	
 	public static final int GAME_PLAYING_PANEL_WIDTH= 400;
 	public static final int GAME_PLAYING_PANEL_HIGHT= 400;
@@ -11,7 +11,7 @@ public class Config {
 	//player tank
 	public static final int PLAYER_TANK_WIDTH = 20;
 	public static final int PLAYER_TANK_HIGHT = 20;
-	public static final int PLAYER_TANK_SPEED = 80;
+	public static final int PLAYER_TANK_SPEED = 10;
 	public static final String PLAYER_TANK_NAME = "Player-1";
 	
 	//computer tank

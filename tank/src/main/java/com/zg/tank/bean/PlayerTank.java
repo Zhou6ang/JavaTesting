@@ -26,21 +26,39 @@ public class PlayerTank extends Tank {
 	public void draw() {
 		GamePlayingPanel gamePlayingPanel = getGamePlayingPanel();
 		logger.debug("drawing a player tank...");
-//		gamePlayingPanel.getGraphics().drawImage(CustomImages.playerTankImg, getPosX(), getPosY(), getWidth(), getHight(), gamePlayingPanel);
-		
-		new Thread(()->{
-			int i = 400;
-			while(i>0){
-				gamePlayingPanel.getGraphics().drawImage(CustomImages.playerTankImg, getPosX(), i, Config.PLAYER_TANK_WIDTH, Config.PLAYER_TANK_HIGHT, gamePlayingPanel);
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e1) {
-					e1.printStackTrace();
-				}
-				i -= 5;
-			}
-			
-		}).start();
+		gamePlayingPanel.getGraphics().drawImage(CustomImages.playerTankImg, getPosX(), getPosY(), getWidth(), getHight(), gamePlayingPanel);
+		gamePlayingPanel.update(gamePlayingPanel.getGraphics());
+//		new Thread(()->{
+//			int i = 400;
+//			while(i>0){
+//				gamePlayingPanel.getGraphics().drawImage(CustomImages.playerTankImg, getPosX(), i, Config.PLAYER_TANK_WIDTH, Config.PLAYER_TANK_HIGHT, gamePlayingPanel);
+////				gamePlayingPanel.update(gamePlayingPanel.getGraphics());
+//				gamePlayingPanel.paint(gamePlayingPanel.getGraphics());
+//				try {
+//					Thread.sleep(100);
+//				} catch (InterruptedException e1) {
+//					e1.printStackTrace();
+//				}
+//				i -= 5;
+//			}
+//			
+//		}).start();
+//		
+//		new Thread(()->{
+//			int i = 400;
+//			while(i>0){
+//				gamePlayingPanel.getGraphics().drawImage(CustomImages.playerTankImg, getPosX()+10, i, Config.PLAYER_TANK_WIDTH, Config.PLAYER_TANK_HIGHT, gamePlayingPanel);
+////				gamePlayingPanel.update(gamePlayingPanel.getGraphics());
+//				gamePlayingPanel.paint(gamePlayingPanel.getGraphics());
+//				try {
+//					Thread.sleep(100);
+//				} catch (InterruptedException e1) {
+//					e1.printStackTrace();
+//				}
+//				i -= 10;
+//			}
+//			
+//		}).start();
 		
 	}
 
@@ -80,7 +98,7 @@ public class PlayerTank extends Tank {
 		logger.debug("PlayerTank shooting ...");
 
 		Bullet bullet = BulletFactory.createBullet(getPosX(), getPosY(),getDirection(), getGamePlayingPanel());
-		getGamePlayingPanel().getAllBullets().add(bullet);
+		getGamePlayingPanel().addBullets(bullet);
 //		new Thread(() -> {
 //			Bullet bullet = new Bullet(this);
 //			tankProp.getPlayer().getParent().add(bullet);

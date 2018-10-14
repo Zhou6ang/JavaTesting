@@ -1,7 +1,10 @@
 package com.zg.tank.panel;
 
+import java.awt.Graphics;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.swing.JPanel;
 
@@ -20,6 +23,8 @@ public class GamePlayingPanel extends JPanel{
 	private List<Tank> tanksList = new ArrayList<>();
 	
 	private List<Bullet> bulletsList = new ArrayList<>();
+	
+	private Map<Bullet,String> bulletsMap = new ConcurrentHashMap<>();
 
 	public boolean isAlive() {
 		return isAlive;
@@ -38,11 +43,22 @@ public class GamePlayingPanel extends JPanel{
 	}
 	
 	public void addBullets(Bullet bullet){
-		bulletsList.add(bullet);
+//		bulletsList.add(bullet);
+		bulletsMap.put(bullet, "");
 	}
 	
 	public List<Bullet> getAllBullets(){
 		return bulletsList;
 	}
+	
+	public Map<Bullet,String> getBulletsMap(){
+		return bulletsMap;
+	}
+
+	public void myPaint() {
+		paint(getGraphics());
+	}
+	
+	
 
 }

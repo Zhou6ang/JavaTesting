@@ -15,6 +15,7 @@ public class RepaintThread implements Runnable{
 			while(gamePlayingPanel.isAlive()){
 				
 				gamePlayingPanel.repaint();
+//				gamePlayingPanel.update(gamePlayingPanel.getGraphics());
 				Thread.sleep(Config.REPAINT_INTERVAL_TIME);
 			}
 		} catch (InterruptedException e) {

@@ -77,7 +77,7 @@ public class App extends JFrame implements CommandLineRunner
 		this.setLayout(null);
 		
 		//menus
-		this.setJMenuBar(createMenuBar(gamePanel));
+		this.setJMenuBar(createMenuBar(this));
 		
 //		Container c = this.getContentPane();
 //		BoxLayout boxLayout = new BoxLayout(c, BoxLayout.Y_AXIS);
@@ -96,7 +96,7 @@ public class App extends JFrame implements CommandLineRunner
 		this.setVisible(true);
 		
 		
-		gamePanel.repaint();
+		gamePanel.paint(gamePanel.getGraphics());
 		
 //		gamePanel.setAlive(true);
 		
@@ -126,7 +126,7 @@ public class App extends JFrame implements CommandLineRunner
 		return top;
 	}
 
-	private JMenuBar createMenuBar(GamePlayingPanel gamePlayingPanel) {
+	private JMenuBar createMenuBar(JFrame jFrame) {
 
 		JMenuBar menu = new JMenuBar();
 		menu.setLocation(0, 0);
@@ -147,36 +147,18 @@ public class App extends JFrame implements CommandLineRunner
 			public void actionPerformed(ActionEvent e) {
 //				p1.setEnabled(false);
 				
-				clearBattleField(gamePlayingPanel);
+				clearBattleField(gamePanel);
 //				JPanel map = createMap();
 				
 				//create player can make as a thread to execute.
-				Player player_1 = new Player(screenX/2, screenY,"player-1",gamePlayingPanel);
-				
-				
-//				new Thread(()->{
-//				int i = 400;
-//				while(i>0){
-//					gamePanel.getGraphics().drawImage(CustomImages.playerTankImg, screenX/2, screenY, Config.PLAYER_TANK_WIDTH, Config.PLAYER_TANK_HIGHT, gamePanel);
-//					try {
-//						Thread.sleep(100);
-//					} catch (InterruptedException e1) {
-//						e1.printStackTrace();
-//					}
-//					screenY -= 5;
-//				}
-//				
-//			}).start();
-				
-				
-				System.out.println("111111111111");
+				Player player_1 = new Player(screenX/2, screenY,"player-1",gamePanel);
 				
 //				curShow = map;
-				gamePlayingPanel.addKeyListener(new KeyBoardListener(player_1));
+				jFrame.addKeyListener(new KeyBoardListener(player_1));
 				
 				gamePanel.setAlive(true);
-//				new Thread(new BulletThread(gamePanel)).start();
-				new Thread(new RepaintThread(gamePanel)).start();
+				new Thread(new BulletThread(gamePanel)).start();
+//				new Thread(new RepaintThread(gamePanel)).start();
 				System.out.println("22222");
 				
 			}
@@ -196,8 +178,8 @@ public class App extends JFrame implements CommandLineRunner
 //				clearBattleField(parent);
 				
 				JPanel map = createMap();
-				Player player_1 = new Player(screenX/2, screenY,"player-1",gamePlayingPanel);
-				Player player_2 = new Player(screenX/2, screenY/2, "player-2",gamePlayingPanel);
+				Player player_1 = new Player(screenX/2, screenY,"player-1",gamePanel);
+				Player player_2 = new Player(screenX/2, screenY/2, "player-2",gamePanel);
 				player_2.setUpKey(KeyEvent.VK_W);
 				player_2.setDownKey(KeyEvent.VK_S);
 				player_2.setLeftKey(KeyEvent.VK_A);

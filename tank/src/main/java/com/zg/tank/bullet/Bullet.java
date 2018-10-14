@@ -107,38 +107,34 @@ public class Bullet implements BulletAction{
 	private void draw() {
 		logger.debug("drawing bullet image...");
 		gamePlayingPanel.getGraphics().drawImage(CustomImages.bulletImg, getPosX(), getPosY(), getWidth(), getHight(), gamePlayingPanel);
+		gamePlayingPanel.myPaint();
 	}
 	
 	@Override
-	public boolean moving() {
+	public void moving() {
 		if(direction.equals(Direction.UP)){
 			setPosY(getPosY() - getSpeed());
 			if(getPosY()<0){
 				gamePlayingPanel.getAllBullets().remove(this);
-				return false;
+				return;
 			}
-//			setLocation(x, y);
 			draw();
 			logger.debug("Bullet [UP] moving...");
 		}else if(direction.equals(Direction.DOWN)){
-//			y += offset;
 			
 			setPosY(getPosY()+getSpeed());
 			
 			if(getPosY() > Config.GAME_PLAYING_PANEL_HIGHT){
 				gamePlayingPanel.getAllBullets().remove(this);
-				return false;
+//				return false;
 			}
-//			setLocation(x, y);
 			logger.debug("Bullet [DOWN] moving...");
 		}else if(direction.equals(Direction.LEFT)){
-//			x -= offset;
 			setPosX(getPosX()-getSpeed());
 			if(getPosX() < 0){
 				gamePlayingPanel.getAllBullets().remove(this);
-				return false;
+//				return false;
 			}
-//			setLocation(x, y);
 			logger.debug("Bullet [LEFT] moving...");
 		}else if(direction.equals(Direction.RIGHT)){
 			
@@ -146,12 +142,12 @@ public class Bullet implements BulletAction{
 			setPosX(getPosX()+getSpeed());
 			if( getPosX() > Config.GAME_PLAYING_PANEL_WIDTH){
 				gamePlayingPanel.getAllBullets().remove(this);
-				return false;
+//				return false;
 			}
-//			setLocation(x, y);
 			logger.debug("Bullet [RIGHT] moving...");
 		}
-		return true;
+//		return true;
+		
 	}
 	
 }

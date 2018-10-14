@@ -99,6 +99,8 @@ public class Player {
 
 	public void processKeyBoardEvent(int keyCode){
 		
+		System.out.println(keyCode);
+		
 		if(upKey == keyCode || downKey == keyCode || leftKey == keyCode|| rightKey == keyCode){
 			tank.moving(keyCode);
 		}else if(shootingKey == keyCode){
