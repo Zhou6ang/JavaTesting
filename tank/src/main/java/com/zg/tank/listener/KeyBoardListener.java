@@ -1,29 +1,21 @@
 package com.zg.tank.listener;
 
-import java.awt.Component;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.util.List;
 
-import javax.swing.JPanel;
-
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.zg.tank.elements.Player;
 
 public class KeyBoardListener implements KeyListener{
 	
-	private List<Player> players;
-	private JPanel map;
-	private static final Logger logger = LogManager.getLogger(KeyBoardListener.class);
+	private Player player;
+	private static final Logger logger = LoggerFactory.getLogger(KeyBoardListener.class);
 	
-//	public KeyBoardListener(List<Player> players) {
-//		this.players = players;
-//	}
 	
-	public KeyBoardListener(JPanel map) {
-		this.map = map;
+	public KeyBoardListener(Player player) {
+		this.player = player;
 	}
 
 	@Override
@@ -42,16 +34,7 @@ public class KeyBoardListener implements KeyListener{
 	@Override
 	public void keyPressed(KeyEvent e) {
 		
-		
-		for (Component comp : map.getComponents()) {
-			if(comp instanceof Player){
-				((Player)comp).processKeyBoardEvent(e.getKeyCode());
-			}
-		}
-		
-//		players.parallelStream().forEach(player ->{
-//			player.processKeyBoardEvent(e.getKeyCode());
-//		});;
+		player.processKeyBoardEvent(e.getKeyCode());
 
 	}
 }

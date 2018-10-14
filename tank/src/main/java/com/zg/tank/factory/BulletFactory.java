@@ -1,14 +1,15 @@
 package com.zg.tank.factory;
 
-import com.zg.tank.bean.Tank;
-import com.zg.tank.elements.Bullet;
+import com.zg.tank.bullet.Bullet;
+import com.zg.tank.direction.Direction;
+import com.zg.tank.panel.GamePlayingPanel;
 
 public class BulletFactory {
 
 	private BulletFactory(){}
 	
-	public static Bullet createBullet(Tank tank){
-		return new Bullet(tank);
+	public static Bullet createBullet(int x,int y,Direction direction,GamePlayingPanel gamePlayingPanel){
+		return new Bullet(x, y, direction, gamePlayingPanel);
 	}
 	
 }

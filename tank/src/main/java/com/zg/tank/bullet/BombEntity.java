@@ -1,13 +1,8 @@
-/**
- * 
- */
-package com.zg.tank.pojo;
+package com.zg.tank.bullet;
 
-/**
- * @author Administrator
- *
- */
-public class BulletEntity {
+import java.awt.Color;
+
+public class BombEntity {
 
 	enum Direction {
 		NORTH, SOUTH, WEST, EAST
@@ -21,6 +16,9 @@ public class BulletEntity {
 	private Direction direction;
 	private int id;
 	private String name;
+	private Color color;
+	private String voice;
+	private String bombLevel;
 	public int getX() {
 		return x;
 	}
@@ -69,12 +67,23 @@ public class BulletEntity {
 	public void setName(String name) {
 		this.name = name;
 	}
-	public String getColor() {
+	public Color getColor() {
 		return color;
 	}
-	public void setColor(String color) {
+	public void setColor(Color color) {
 		this.color = color;
 	}
-	private String color;
+	public String getVoice() {
+		return voice;
+	}
+	public void setVoice(String voice) {
+		this.voice = voice;
+	}
+	public String getBombLevel() {
+		return bombLevel;
+	}
+	public void setBombLevel(String bombLevel) {
+		this.bombLevel = bombLevel;
+	}
 	
 }

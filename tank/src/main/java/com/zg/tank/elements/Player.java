@@ -2,56 +2,47 @@ package com.zg.tank.elements;
 
 import java.awt.event.KeyEvent;
 
-import javax.swing.JPanel;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import com.zg.tank.bean.PlayerTank;
 import com.zg.tank.bean.Tank;
 import com.zg.tank.factory.TankFactory;
-import com.zg.tank.pojo.TankEntity;
+import com.zg.tank.panel.GamePlayingPanel;
 
-public class Player extends JPanel {
+public class Player {
 
-	/**
-	 * 
-	 */
-	private static final Logger logger = LogManager.getLogger(Player.class);
-	private static final long serialVersionUID = 1L;
+	private static final Logger logger = LogManager.getLogger(PlayerTank.class);
 	private int id;
-	private String name;
 	private int age;
 	private Tank tank;
+	private String playerName;
+	
 	private int shootingKey = KeyEvent.VK_SPACE;
 	private int upKey = KeyEvent.VK_UP;
 	private int downKey = KeyEvent.VK_DOWN;
 	private int leftKey = KeyEvent.VK_LEFT;
 	private int rightKey = KeyEvent.VK_RIGHT;
 	
-	
-	public Player(int x, int y, String playerName) {
-		logger.debug("create Player ...");
-		tank = TankFactory.createPlayerTank(new TankEntity(x, y, 20, 20, playerName,this));
-		int x1 = tank.getTankProp().getX()-tank.getTankProp().getWigth();
-		int y1 = tank.getTankProp().getY()-tank.getTankProp().getHight();
-		this.setBounds(x1, y1, tank.getTankProp().getWigth(), tank.getTankProp().getHight());
-		this.setBackground(tank.getTankProp().getColor());
-		this.setName(tank.getTankProp().getName());
-		
-		
+	public Player(int x, int y, String playerName,GamePlayingPanel gamePlayingPanel) {
+		logger.debug("Create Player ...");
+		tank = TankFactory.createPlayerTank(x,y,gamePlayingPanel);
 	}
 	
+	
+	public String getPlayerName() {
+		return playerName;
+	}
+
+	public void setPlayerName(String playerName) {
+		this.playerName = playerName;
+	}
+
 	public int getId() {
 		return id;
 	}
 	public void setId(int id) {
 		this.id = id;
-	}
-	public String getName() {
-		return name;
-	}
-	public void setName(String name) {
-		this.name = name;
 	}
 	public int getAge() {
 		return age;
