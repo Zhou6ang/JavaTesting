@@ -1,0 +1,43 @@
+<link rel = 'import' href = 'node_modules/@polymer/polymer/polymer.html'>
+<link rel = "import" href = "node_modules/@polymer/iron-icons/iron-icons.html">
+<link rel = "import" href = "node_modules/@polymer/paper-icon-button/paper-icon-button.html">
+<script src="node_modules/clipboard/dist/clipboard.min.js"></script>
+
+<dom-module id = 'my-app-npm-based'>
+    <template>
+        <h3>Paper-Icon-Button Example </h3>
+        <paper-icon-button icon = "settings" ></paper-icon-button>settings
+        <br>
+        <paper-icon-button icon = "warning" style = "color: red;" ></paper-icon-button>warning
+        <br>
+        <paper-icon-button icon = "content-cut" ></paper-icon-button>content-cut
+        <br>
+        <paper-icon-button icon = "content-paste" id="clipboard"></paper-icon-button>content-paste
+        <br>
+        <paper-icon-button icon = "dashboard" ></paper-icon-button>dashboard
+        <br>
+        <paper-icon-button icon = "flight-takeoff" ></paper-icon-button>flight-takeoff
+        <br>
+    </template>
+
+    <script>
+        Polymer ({
+            is: 'my-app-npm-based',
+            ready: function() {
+                this.async(function() {
+                    console.log("abc");
+                });
+
+                var app = document.querySelector('#my-app-npm-based');
+                var clipboard = new Clipboard(app.$.clipboard, {
+                    text: function() {
+                        var clipboardText = "hahah succ paste";
+
+                        return clipboardText;
+                    }
+                });
+                console.log("test");
+            }
+        });
+    </script>
+</dom-module>
