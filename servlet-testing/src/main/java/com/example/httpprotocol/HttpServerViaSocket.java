@@ -13,7 +13,7 @@ public class HttpServerViaSocket {
 
 	public static void main(String[] args) throws IOException  {
 		
-		new HttpServerViaSocket().createServer(9999);
+		new HttpServerViaSocket().createServer(9998);
 	}
 
 	/**
@@ -83,6 +83,9 @@ public class HttpServerViaSocket {
 			
 			
 			System.out.println("headers:"+headers);
+			System.out.println("=============while http request==============");
+            System.out.println(sb.toString());
+            System.out.println("=============================================");
 			/**
 			 * send http response to client.
 			 */

@@ -12,7 +12,7 @@ public class HttpClientViaSocket {
 	 */
 	public static void main(String[] args) throws Exception {
 		
-		Socket soc = new Socket("localhost", 9999);
+		Socket soc = new Socket("localhost", 9998);
 		OutputStream output = soc.getOutputStream();
 		output.write("POST / HTTP/1.1\r\n".getBytes());
 		output.write("Host: localhost:8080\r\n".getBytes());

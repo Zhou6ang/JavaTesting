@@ -17,7 +17,6 @@
    <modules>
 	<module>bom</module>
 	<module>JavaFeatures</module>
-	<module>tank</module>
     <module>spring-boot-template</module>
   </modules>
 
