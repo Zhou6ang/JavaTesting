@@ -1,0 +1,13 @@
+server: 
+  port: 8886
+eureka:
+  client: 
+    serviceUrl: 
+      defaultZone: http://localhost:8888/eureka/
+zuul: 
+  routes: 
+    anyName: 
+      path: /somepath/**
+spring: 
+  application: 
+    name: eureka-service-zuul-gateway

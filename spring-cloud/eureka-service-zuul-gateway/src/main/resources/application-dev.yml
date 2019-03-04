@@ -1,0 +1,8 @@
+zuul: 
+  routes: 
+    api-a: 
+      path: /api-a/**
+      url: http://www.baidu.com
+    any2: 
+      path: /anyService/**
+      serviceId: EUREKA-SERVICE-PROVIDER

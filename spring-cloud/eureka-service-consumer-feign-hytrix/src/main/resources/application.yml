@@ -1,0 +1,14 @@
+server: 
+  port: 6100
+eureka:
+  client: 
+    serviceUrl: 
+      defaultZone: http://localhost:8888/eureka/
+spring: 
+  application: 
+    name: eureka-service-cunsumer-feign-hystrix
+
+#enable hystrix
+feign.hystrix.enabled: true
+hystrix.command.default.circuitBreaker.requestVolumeThreshold: 5
+hystrix.command.default.circuitBreaker.sleepWindowInMilliseconds: 60000
